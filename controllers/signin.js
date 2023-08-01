@@ -1,14 +1,20 @@
 const handleSignIn = (req, res, db, bcrypt) => {
+    const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json("At least one signin attribute left blank");
+  }
   db.select("email", "hash")
     .from("login")
-    .where("email", "=", req.body.email)
+    .where("email", "=", email)
     .then((data) => {
       const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
       if (isValid) {
         return db
           .select("*")
           .from("users")
-          .where("email", "=", req.body.email)
+          .where("email", "=", email)
           .then((user) => {
             res.json(user[0]);
           })
@@ -25,5 +31,5 @@ const handleSignIn = (req, res, db, bcrypt) => {
 };
 
 module.exports = {
-    handleSignIn,
-  };
+  handleSignIn,
+};
